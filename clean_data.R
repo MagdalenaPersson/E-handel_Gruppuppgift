@@ -44,3 +44,5 @@ colSums(is.na(orders))
 orders_clean <- orders_clean %>%
   filter(!is.na(discount_pct))
 
+
+
