@@ -7,4 +7,4 @@
 .Rproj.user
 
 # Projekt
-data/raw/
+*.csv

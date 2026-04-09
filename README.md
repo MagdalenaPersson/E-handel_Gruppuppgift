@@ -12,7 +12,7 @@ Utforskande dataanalys i R av e-handelsdata
 1. Klona repot från GitHub
 2. Öppna `ecommerce_analysis.Rproj` i RStudio
 3. Installera nödvändiga paket (se nedan)
-4. Lägg originalfilen `ecommerce_orders.csv` i mappen `data/raw/`
+4. Lägg originalfilen `ecommerce_orders.csv` i projektet
 
 ## Paket
 install.packages("tidyverse")
@@ -23,7 +23,7 @@ install.packages("here")
 
 ## Arbetsfördelning
 - Dataförståelse: Elisabeth
-- Datastädning: [namn]
+- Datastädning: Magdalena
 - Analys: [namn]
 - Visualisering: [namn]
 - Rapport: [namn]
