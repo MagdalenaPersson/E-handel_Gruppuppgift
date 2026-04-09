@@ -6,13 +6,13 @@ Utforskande dataanalys i R av e-handelsdata
 ##Frågeställningar
 1. Vilka produktkategorier verkar driva högst försäljning?
 2. Finns det samband mellan rabatt och ordervärde?
-3. [to come]
+3. Påverkar rabatter lönsamheten inom olika produktkategorier/subkategorier?
 
 ## Kom igång
 1. Klona repot från GitHub
 2. Öppna `ecommerce_analysis.Rproj` i RStudio
 3. Installera nödvändiga paket (se nedan)
-4. Lägg originalfilen `ecommerce_orders.csv` i mappen `data/raw/`
+4. Lägg originalfilen `ecommerce_orders.csv` i projektet
 
 ## Paket
 install.packages("tidyverse")
@@ -23,7 +23,7 @@ install.packages("here")
 
 ## Arbetsfördelning
 - Dataförståelse: Elisabeth
-- Datastädning: [namn]
-- Analys: [namn]
+- Datastädning: Magdalena
+- Analys: Katja
 - Visualisering: [namn]
 - Rapport: [namn]
