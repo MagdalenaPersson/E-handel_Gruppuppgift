@@ -6,7 +6,7 @@ Utforskande dataanalys i R av e-handelsdata
 ##Frågeställningar
 1. Vilka produktkategorier verkar driva högst försäljning?
 2. Finns det samband mellan rabatt och ordervärde?
-3. Påverkar rabatter lönsamheten inom olika produktkategorier/subkategorier?
+3. Är det lönsamt att ge rabatt?
 
 ## Kom igång
 1. Klona repot från GitHub
@@ -24,6 +24,6 @@ install.packages("here")
 ## Arbetsfördelning
 - Dataförståelse: Elisabeth
 - Datastädning: Magdalena
-- Analys: Katja
+- Analys: Katja & Elisabeth
 - Visualisering: [namn]
 - Rapport: [namn]
