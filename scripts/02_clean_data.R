@@ -1,6 +1,5 @@
-library(tidyverse)
+orders <- read_csv(here::here("data/ecommerce_orders.csv"))
 
-orders <- read_csv(here::here("ecommerce_orders.csv"))
 
 
 # city behöver städas - inkonsekvent stora/små bokstäver
