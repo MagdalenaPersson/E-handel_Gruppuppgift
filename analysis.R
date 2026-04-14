@@ -88,7 +88,8 @@ orders_clean %>%
   arrange(desc(medel_quantity))
 
 # Rabatter driver inte fler enheter per order (medel 1.31-1.47, minimal skillnad)
-# Ordervärdet efter rabatt är lägst i gruppen med högst rabatt
+# Ordervärdet efter rabatt är högst för ordrar utan rabatt (617 kr)
+# och lägst för gruppen med hög rabatt över 20% (422 kr)
 
 # Lockar rabatter nya kunder?
 orders_clean %>%
@@ -120,7 +121,7 @@ orders_clean %>%
     medel_rabatt = mean(discount_pct)
   ) %>%
   arrange(rabattgrupp, customer_type)
-# Höga rabatter ges proportionerligt mer till VIP-kunder
+# Höga rabatter ges oftare till VIP-kunder
 # än andra kundergrupper. Resultatet bör dock tolkas med försiktighet 
 # eftersom högrabattgruppen endast innehåller 85 ordrar.
 
@@ -145,8 +146,8 @@ orders_clean %>%
     medel_ordrar_per_kund = mean(antal_ordrar)
   )
 # Kunder med låg rabatt (0-5%) är värda nästan dubbelt så mycket som kunder med hög rabatt:
-#Låg rabatt: 645 kr per kund, 2.01 ordrar per kund
-#Hög rabatt: 339 kr per kund, 1.20 ordrar per kund
+#Låg rabatt: 1000 kr per kund, 2.01 ordrar per kund
+#Hög rabatt: 665 kr per kund, 1.20 ordrar per kund
 
 #Undersöker intäkter per kund - inga rabatter jmf med 15% eller mer
 #(här är grupperna mer jämförbara i storlek)
@@ -168,7 +169,7 @@ orders_clean %>%
     medel_ordrar_per_kund = mean(antal_ordrar)
   )
 #medel_ordrar_per_kund är nästan identisk: 1.19 vs 1.20
-#medel_intakt_per_kund är fortfarande högre för ingen rabatt: 455 kr vs 339 kr
+#medel_intakt_per_kund är fortfarande högre för ingen rabatt: 732 kr vs 655 kr
 #Det betyder att höga rabatter inte får kunder att lägga fler ordrar 
 #jämfört med kunder utan rabatt alls. 
 
@@ -211,18 +212,18 @@ orders_clean %>%
 #    Vi kan dock inte avgöra kausalitet, skapar rabatter lojala kunder eller 
 #    får lojala kunder mer rabatt.
 #
-# 3. Är kunder med höga rabatter mer lönsamma än kunder utan rabatt?
+# 4. Är kunder med höga rabatter mer lönsamma än kunder utan rabatt?
 #   
 #    Jämförelse 1 - Låg rabatt (0-5%) jmf med hög rabatt (15%+):
 #    Kunder med låga rabatter är de mest lönsamma. De lägger flest ordrar
-#    (2.01 per kund) och ger högst intäkt (645 kr per kund), jämfört med
-#    kunder med höga rabatter (1.20 ordrar, 339 kr per kund).
+#    (2.01 per kund) och ger högst intäkt (1000 kr per kund), jämfört med
+#    kunder med höga rabatter (1.20 ordrar, 655 kr per kund).
 #    Varför lågrabattkunder är så lojala kan vi inte förklara med denna data.
 
 #    Jämförelse 2 - Ingen rabatt vs hög rabatt (15%+):
 #    Kunder utan rabatt och med hög rabatt lägger ungefär lika många ordrar
 #    (1.19 vs 1.20 per kund), men kunder utan rabatt ger högre intäkt
-#    (455 kr vs 339 kr per kund). Höga rabatter driver alltså inte lojalitet.
+#    (732 kr vs 655 kr per kund). Höga rabatter driver alltså inte lojalitet.
 #
 #
 # Rekommendation till företaget:
