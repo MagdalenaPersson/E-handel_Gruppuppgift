@@ -2,7 +2,7 @@ library(tidyverse)
 
 # Läs in data
 # here::here skapar en relativ filväg till datamappen
-orders <- read_csv(here::here("ecommerce_orders.csv"))
+orders <- read_csv(here::here("data/ecommerce_orders.csv"))
 
 # Visa datasetets storlek
 dim(orders)
