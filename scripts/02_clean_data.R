@@ -1,7 +1,6 @@
 orders <- read_csv(here::here("data/ecommerce_orders.csv"))
 
 
-
 # city behöver städas - inkonsekvent stora/små bokstäver
 # inga å, ä, ö
 # payment_method och campaign_source behöver städas
