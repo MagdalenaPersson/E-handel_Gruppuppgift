@@ -77,7 +77,6 @@ category_summary <- orders_clean %>%
   # Rabatter ökar försäljningsvolymen, men minskar ordervärdet
   # Det finns inget tydligt linjärt samband mellan rabattnivå och ordervärde.
   
-  
   # Frågeställning 3: Leder rabatter till högre ordervärde — är det lönsamt att ge rabatt?
   
   # Börjar med att kolla om rabatter korrelerade med kategorier
@@ -91,65 +90,6 @@ category_summary <- orders_clean %>%
   
   # Medel-rabatten ligger mellan 6.7% och 7.4% för alla kategorier.
   # Rabatter är därmed inte koncentrerade till någon specifik kategori. 
-  
-  # Leder rabatt till fler köp per order?
-  orders_clean %>%
-    mutate(rabattgrupp = case_when(
-      discount_pct == 0 ~ "Ingen rabatt",
-      discount_pct < 0.05 ~ "Mycket låg (0-5%)",
-      discount_pct < 0.10 ~ "Låg (5-10%)",
-      discount_pct < 0.15 ~ "Medel (10-15%)",
-      discount_pct < 0.20 ~ "Medel-hög (15-20%)",
-      TRUE ~ "Hög (över 20%)"
-    )) %>%
-    group_by(rabattgrupp) %>%
-    summarise(
-      antal_ordrar = n(),
-      medel_quantity = mean(quantity),
-      medel_efter_rabatt = mean(total_after_discount)
-    ) %>%
-    arrange(desc(medel_quantity))
-  
-  # Rabatter driver inte fler enheter per order (medel 1.31-1.47, minimal skillnad)
-  # Ordervärdet efter rabatt är högst för ordrar utan rabatt (617 kr)
-  # och lägst för gruppen med hög rabatt över 20% (422 kr)
-  
-  # Lockar rabatter nya kunder?
-  customer_summary <- orders_clean %>%
-    group_by(customer_type) %>%
-    summarise(
-      antal = n(),
-      andel_med_rabatt = mean(discount_pct > 0),
-      medel_rabatt = mean(discount_pct)
-    ) %>%
-    arrange(desc(andel_med_rabatt))
-  
-  # 99% av VIP-kunder får rabatt, med ett medelvärde på 11.4%
-  # 91% av nya kunder får rabatt mot 88% av återkommande
-  # Det verkar som att företaget använder rabatter för att belöna sina bästa kunder men 
-  # vi kan inte säga om rabatter faktiskt leder till att kunder kommer tillbaka eller blir VIP 
-  # det kan lika gärna vara så att företaget ger VIP-kunder rabatt för att de redan är lojala.
-  
-  # Ordrar och kundgrupper - Jämför gruppen med ingen eller max 5% rabatt, med gruppen med 15% rabatt eller högre
-  orders_clean %>%
-    filter(discount_pct <= 0.05 | discount_pct >= 0.15) %>%
-    mutate(rabattgrupp = case_when(
-      discount_pct <= 0.05 ~ "Låg (0-5%)",
-      TRUE ~ "Hög (15% och över)"
-    )) %>%
-    group_by(rabattgrupp, customer_type) %>%
-    summarise(
-      antal = n(),
-      andel_med_rabatt = mean(discount_pct > 0),
-      medel_rabatt = mean(discount_pct)
-    ) %>%
-    arrange(rabattgrupp, customer_type)
-  
-  
-  # Höga rabatter ges oftare till VIP-kunder
-  # än andra kundergrupper. Resultatet bör dock tolkas med försiktighet 
-  # eftersom högrabattgruppen endast innehåller 85 ordrar.
-  
   
   #Undersöker om intäkter per kund i gruppen liten eller ingen rabatt, 
   #jämfört med intäkt per kund i gruppen för stora rabatter. 
@@ -198,69 +138,17 @@ category_summary <- orders_clean %>%
   #Det betyder att höga rabatter inte får kunder att lägga fler ordrar 
   #jämfört med kunder utan rabatt alls. 
   
-  #Kollar om det är något outlier som drar upp antalet ordrar per kund för
-  #kundgruppen med liten rabatt (0-5%, 2.01 ordrar per kund), jmf med
-  #kundgruppen utan rabatt (1.19 ordrar per kund)
-  orders_clean %>%
-    filter(discount_pct > 0 & discount_pct <= 0.05) %>%
-    group_by(customer_id) %>%
-    summarise(
-      antal_ordrar = n(),
-      medel_rabatt = mean(discount_pct),
-      total_intakt = sum(total_after_discount)
-    ) %>%
-    arrange(desc(antal_ordrar))
-  
   # Verkar som kunder med låga rabatter handlar oftare.
-  #Kunden med flest ordrar har bara lagt 6 ordrar,
-  #så verkar inte vara något outliner som drar upp medlet
-  
-  
-  # Viktig affärsinsikt:
-  # Rabatter påverkar kundtyper olika – särskilt beteendet mellan nya och återkommande kunder.
-  
-  # Frågeställning 3: Är det lönsamt att ge rabatter?
-  #
-  # För att undersöka detta tittade vi på frya delområden:
-  #
-  # 1. Är rabatter kopplade till specifika kategorier?
-  #    Medel-rabatten ligger mellan 6.7% och 7.4% för alla produktkategorier.
-  #    Rabatter är jämnt fördelade mellan kategorier, vilket betyder att
-  #    rabatterna inte är kategoribundna.
-  #
-  # 2. Leder rabatter till fler köp per order?
-  #    Vi tittade på om kunder köper mer per order vid högre rabatt
-  #    Medel antal enheter per order varierar mellan 1.31 och 1.47 mellan
-  #    rabattgrupperna — en minimal skillnad.
-  #    Rabatter driver alltså inte kunder att köpa fler enheter per order.
-#
-# 3. Lockar rabatter nya kunder eller belönar de lojala kunder?
-#    99% av VIP-kunder får rabatt med ett medelvärde på 11.4%, jämfört med
-#    91% av nya kunder och 88% av återkommande kunder.
-#    Det tyder på att företaget främst använder rabatter för att belöna
-#    sina bästa kunder snarare än för att locka nya.
-#    Vi kan dock inte avgöra kausalitet, skapar rabatter lojala kunder eller 
-#    får lojala kunder mer rabatt.
-#
-# 4. Är kunder med höga rabatter mer lönsamma än kunder utan rabatt?
-#   
-#    Jämförelse 1 - Låg rabatt (0-5%) jmf med hög rabatt (15%+):
-#    Kunder med låga rabatter är de mest lönsamma. De lägger flest ordrar
-#    (2.01 per kund) och ger högst intäkt (1000 kr per kund), jämfört med
-#    kunder med höga rabatter (1.20 ordrar, 655 kr per kund).
-#    Varför lågrabattkunder är så lojala kan vi inte förklara med denna data.
+  #Kunden med flest ordrar har bara lagt 6 ordrar, så verkar inte vara något outliner som drar upp medlet
+  # 99% av VIP-kunder får rabatt, med ett medelvärde på 11.4%
+  # 91% av nya kunder får rabatt mot 88% av återkommande
 
-#    Jämförelse 2 - Ingen rabatt vs hög rabatt (15%+):
-#    Kunder utan rabatt och med hög rabatt lägger ungefär lika många ordrar
-#    (1.19 vs 1.20 per kund), men kunder utan rabatt ger högre intäkt
-#    (732 kr vs 655 kr per kund). Höga rabatter driver alltså inte lojalitet.
-#
-#
-# Rekommendation till företaget:
+#    Slutsats frågeställning 3: 
+#    Kunder med låg eller inga rabatter (0-5%) är de mer lönsamma (snittar 
+#    2.01 ordrar per kund och 1000 kr i intäkt per kund) än 
+#    kunder med höga rabatter (+15%) (snittar 1.20 ordrar, 655 kr per kund).
 #    Höga rabatter verkar inte löna sig. De driver varken fler ordrar eller
 #    högre intäkt per kund jämfört med ingen eller låg rabatt.
-#    Det kan vara värt att se över rabattstrategin och undersöka vidare
-#    varför kunder med låga rabatter är så lojala.
 #
 # Begränsning:
 #  Vi kan se samband men inte förklara vad som orsakar vad (kausalitet).
