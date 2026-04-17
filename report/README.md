@@ -17,6 +17,7 @@ Utforskande dataanalys i R av e-handelsdata
 ## Paket
 install.packages("tidyverse")
 install.packages("here")
+install.packages("ggrepel")
 
 ## Filstruktur
 [to come]

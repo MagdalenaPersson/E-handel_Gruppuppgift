@@ -1,0 +1,5 @@
+source("scripts/01_data_understanding.R")
+source("scripts/02_clean_data.R")
+source("scripts/03_variabler.R")
+source("scripts/04_analysis.R")
+source("scripts/05_visualisering.R")
