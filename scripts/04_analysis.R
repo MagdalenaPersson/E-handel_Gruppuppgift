@@ -215,68 +215,6 @@ category_summary <- orders_clean %>%
   #Kunden med flest ordrar har bara lagt 6 ordrar,
   #så verkar inte vara något outliner som drar upp medlet
   
-  order_customer_type <- orders_clean %>%
-    mutate(rabattgrupp = case_when(
-      discount_pct == 0 ~ "Ingen rabatt",
-      discount_pct < 0.05 ~ "Mycket låg (0-5%)",
-      discount_pct < 0.10 ~ "Låg (5-10%)",
-      discount_pct < 0.15 ~ "Medel (10-15%)",
-      discount_pct < 0.20 ~ "Medel-hög (15-20%)",
-      TRUE ~ "Hög (över 20%)"
-    ))%>%
-    group_by(rabattgrupp, customer_type) %>%
-    summarise(
-      antal_order = n(),
-      medel_quantity = mean(quantity),
-      medelvarde_order = mean(sales_amount),
-      median_order = median(sales_amount) 
-    ) %>%
-    arrange(rabattgrupp, customer_type)
-  
-  order_customer_type
-  
-  # 
-  
-  rabatt_impact_summary <- orders_clean %>%
-    mutate(rabattgrupp = case_when(
-      discount_pct == 0 ~ "Ingen rabatt",
-      discount_pct < 0.05 ~ "Mycket låg (0-5%)",
-      discount_pct < 0.10 ~ "Låg (5-10%)",
-      discount_pct < 0.15 ~ "Medel (10-15%)",
-      discount_pct < 0.20 ~ "Medel-hög (15-20%)",
-      TRUE ~ "Hög (över 20%)"
-    )) %>%
-    group_by(rabattgrupp, customer_type) %>%
-    summarise(
-      antal_ordrar = n(),
-      medel_quantity = mean(quantity),
-      medel_efter_rabatt = mean(total_after_discount),
-      .groups = "drop"
-    ) %>%
-    arrange(desc(medel_quantity)) %>%
-    mutate(rabattgrupp = factor(rabattgrupp, levels = c(
-      "Ingen rabatt",
-      "Mycket låg (0-5%)",
-      "Låg (5-10%)",
-      "Medel (10-15%)",
-      "Medel-hög (15-20%)",
-      "Hög (över 20%)"
-    )))
-  
-  rabatt_impact_summary
-  
-  
-  # VIP-kunder:
-  # Inte de som spenderar mest i grupper med höga rabatter
-  # Men mer stabila över alla rabattnivåer
-  
-  # Nya kunder:
-  # - Högre ordervärde i grupper med höga rabatter (488)
-  # - Tyder på att rabatter lockar till högre initialt köp
-  
-  # Återkommande kunder
-  # - Största kundgruppen
-  # - Mest konsekventa värden i mellansegmentet
   
   # Viktig affärsinsikt:
   # Rabatter påverkar kundtyper olika – särskilt beteendet mellan nya och återkommande kunder.
@@ -332,5 +270,55 @@ category_summary <- orders_clean %>%
 #  (En rabatt på en högmarginalprodukt kan fortfarande vara lönsam medan samma rabatt 
 #  på en lågmarginalprodukt kan ge förlust.
 
-
-
+# ---------------- viktiga del för visualiseringar (ta inte bort) :)
+  
+  rabatt_impact_summary <- orders_clean %>%
+    mutate(rabattgrupp = case_when(
+      discount_pct == 0 ~ "Ingen rabatt",
+      discount_pct < 0.05 ~ "Mycket låg (0-5%)",
+      discount_pct < 0.10 ~ "Låg (5-10%)",
+      discount_pct < 0.15 ~ "Medel (10-15%)",
+      discount_pct < 0.20 ~ "Medel-hög (15-20%)",
+      TRUE ~ "Hög (över 20%)"
+    )) %>%
+    group_by(rabattgrupp, customer_type) %>%
+    summarise(
+      antal_ordrar = n(),
+      medel_quantity = mean(quantity),
+      medel_efter_rabatt = mean(total_after_discount),
+      .groups = "drop"
+    ) %>%
+    arrange(desc(medel_quantity)) %>%
+    mutate(rabattgrupp = factor(rabattgrupp, levels = c(
+      "Ingen rabatt",
+      "Mycket låg (0-5%)",
+      "Låg (5-10%)",
+      "Medel (10-15%)",
+      "Medel-hög (15-20%)",
+      "Hög (över 20%)"
+    )))
+  
+  rabatt_impact_summary
+  
+  # För nya kunder:
+  # - En hög rabatt fungerar som ett incitament att köpa en dyrare vara
+  # - En medelhög rabatt motiverar istället till att köpa fler varor till lägre pris
+  # - Jämfört med ingen rabatt finns ingen tydlig fördel
+  # - Däremot kan rabatter fungera som ett incitament för att återkomma som kund
+  
+  # För återkommande kunder:
+  # - Det bästa genomsnittliga ordervärdet uppnås utan rabatt
+  # - Höga rabatter motiverar till fler varor per köp
+  # - Men detta sänker det genomsnittliga ordervärdet och ger sämst utfall
+  # - Rabatter under 15 % verkar öka beställningsfrekvensen
+  
+  # För VIP-kunder:
+  # - Låga rabatter är mest effektiva
+  # - De bibehåller ett högt ordervärde samtidigt som kunderna köper fler varor
+  # - Höga rabatter har liknande effekt som ingen rabatt och rabbat till 5 %
+  # - Rekommenderad maxrabatt är cirka 15 %
+  
+  #
+  # För att fullt ut förstå kundbeteendet krävs vidare analys av hur rabatter
+  # påverkar kundernas utveckling från återkommande kunder till VIP-kunder
+  
