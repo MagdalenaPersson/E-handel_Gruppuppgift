@@ -1,0 +1,168 @@
+---
+title: "Rapport"
+output: html_document
+---
+
+---
+
+title: "E-handel – Analys av försäljning och rabattstrategier"
+author: "Grupp X"
+output: html_document
+---------------------
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(ggrepel)
+```
+
+# Syfte
+
+Syftet med denna analys är att undersöka hur försäljning och kundbeteende ser ut inom ett e-handelsföretag, med särskilt fokus på produktkategorier och rabatter. Målet är att identifiera mönster i datan som kan användas som beslutsunderlag för verksamheten.
+
+# Frågeställningar
+
+* Vilka produktkategorier verkar driva högst försäljning?
+* Finns det samband mellan rabatt och ordervärde?
+* Är det lönsamt att ge rabatt?
+
+# Dataförståelse
+
+```{r}
+orders <- read_csv(here::here("data/ecommerce_orders.csv"))
+
+dim(orders)
+glimpse(orders)
+
+colSums(is.na(orders))
+```
+
+Datasetet innehåller cirka 1000 observationer och 16 variabler, inklusive både numeriska och kategoriska variabler. Det finns vissa saknade värden, bland annat i variablerna rabatt, leveranstid och betalningsmetod. Dessa behöver hanteras innan analysen kan genomföras.
+
+De mest centrala variablerna för analysen är:
+
+* produktkategori
+* antal och styckpris
+* rabatt
+* kundinformation
+
+# Datastädning och förberedelse
+
+```{r}
+orders_clean <- orders %>%
+  mutate(
+    order_date = as.Date(order_date),
+    city = str_to_title(str_trim(city)),
+    payment_method = str_to_title(str_trim(payment_method)),
+    campaign_source = str_to_title(str_trim(campaign_source))
+  ) %>%
+  filter(!is.na(discount_pct)) %>%
+  mutate(
+    sales_amount = quantity * unit_price,
+    discounted_price = unit_price * (1 - discount_pct),
+    total_after_discount = quantity * discounted_price
+  )
+```
+
+I detta steg städades textvariabler för att säkerställa konsekvent format. Rader med saknade värden i rabatt togs bort eftersom de var centrala för analysen.
+
+Nya variabler skapades för att möjliggöra analys, exempelvis ordervärde före och efter rabatt.
+
+# Resultat
+
+## Produktkategorier och försäljning
+
+```{r}
+category_summary <- orders_clean %>%
+  group_by(product_category) %>%
+  summarise(
+    total_sales = sum(sales_amount),
+    avg_order = mean(sales_amount),
+    antal_order = n()
+  )
+
+category_summary
+```
+
+```{r}
+ggplot(category_summary, aes(x = avg_order, 
+                             y = total_sales, 
+                             size = antal_order, 
+                             color = product_category)) +
+  geom_point(alpha = 0.7) +
+  geom_text_repel(aes(label = product_category)) +
+  labs(
+    title = "Sales vs Average Order Value",
+    x = "Average Order Value",
+    y = "Total Sales"
+  ) +
+  guides(color = "none")
+```
+
+Analysen visar att *Electronics* är den kategori som driver högst försäljning, både i total intäkt och genomsnittligt ordervärde. Detta tyder på att kategorin spelar en central roll i företagets intäktsstruktur.
+
+---
+
+## Rabatt och ordervärde
+
+```{r}
+orders_clean %>%
+  mutate(rabattgrupp = case_when(
+    discount_pct == 0 ~ "Ingen rabatt",
+    discount_pct < 0.10 ~ "Låg",
+    discount_pct < 0.20 ~ "Medel",
+    TRUE ~ "Hög"
+  )) %>%
+  group_by(rabattgrupp) %>%
+  summarise(
+    antal = n(),
+    medelvarde = mean(sales_amount)
+  )
+```
+
+```{r}
+ggplot(orders_clean, aes(x = discount_pct, y = sales_amount)) +
+  geom_point(alpha = 0.3) +
+  labs(title = "Rabatt vs ordervärde")
+```
+
+Resultaten visar att det inte finns något tydligt samband mellan rabattnivå och ordervärde. Ordrar utan rabatt har i flera fall lika högt eller högre ordervärde än de med rabatt. Detta tyder på att rabatter inte nödvändigtvis leder till ökad konsumtion per order.
+
+---
+
+## Är det lönsamt att ge rabatt?
+
+```{r}
+orders_clean %>%
+  group_by(customer_id) %>%
+  summarise(total_spending = sum(total_after_discount)) %>%
+  summarise(mean_spending = mean(total_spending))
+```
+
+Analysen visar att högre rabatter inte leder till högre intäkter per kund. Kunder med höga rabatter handlar varken oftare eller för större belopp än kunder med låg eller ingen rabatt.
+
+# Slutsatser
+
+De viktigaste slutsatserna är:
+
+* *Electronics* är den produktkategori som driver störst försäljning och bör prioriteras strategiskt
+* Rabatter verkar inte öka ordervärdet
+* Höga rabatter verkar inte vara en effektiv strategi för att öka intäkter
+
+Företaget kan därför överväga att minska användningen av höga rabatter och istället fokusera på sina starkaste produktkategorier.
+
+# Begränsningar
+
+Analysen har flera begränsningar:
+
+* Den visar samband men inte orsakssamband
+* Saknade värden har tagits bort, vilket kan påverka resultatet
+* Det saknas information om kostnader och marginaler
+* Datat saknar en tydlig tidsdimension
+
+Detta innebär att vi inte kan dra några säkra slutsatser om faktisk lönsamhet.
+
+# Sammanfattning
+
+Sammanfattningsvis visar analysen att rabatter inte är en effektiv strategi för att öka intäkter, medan vissa produktkategorier, särskilt *Electronics*, spelar en avgörande roll i företagets försäljning.
+För att fatta bättre beslut framöver skulle ytterligare data, särskilt kring kostnader och kundbeteende över tid, vara värdefull.
