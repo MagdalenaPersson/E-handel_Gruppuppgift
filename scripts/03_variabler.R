@@ -1,4 +1,4 @@
-source("scripts/02_clean_data.R")
+source("../scripts/02_clean_data.R")
 
 orders_clean <- orders_clean %>% 
   mutate(sales_amount = quantity * unit_price,
