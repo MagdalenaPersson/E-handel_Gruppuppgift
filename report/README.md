@@ -27,4 +27,4 @@ install.packages("ggrepel")
 - Datastädning: Magdalena
 - Analys: Katja & Elisabeth
 - Visualisering: Wendy
-- Rapport: [namn]
+- Rapport: Daniel
