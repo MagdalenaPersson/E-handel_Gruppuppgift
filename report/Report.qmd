@@ -32,6 +32,14 @@ Syftet med denna analys är att undersöka försäljning, kundbeteende och effek
 
 ------------------------------------------------------------------------
 
+## Metod
+
+Analysen genomfördes i R med hjälp av tidyverse. Datat förbereddes genom att städa textvariabler, hantera saknade värden och skapa nya variabler för ordervärde och rabatt.
+
+Därefter genomfördes en utforskande dataanalys genom gruppindelningar, sammanfattande statistik och visualiseringar för att identifiera mönster och samband i datan.
+
+------------------------------------------------------------------------
+
 ## Dataförståelse
 
 Datasetet innehåller cirka 1000 observationer och 16 variabler. Det finns både numeriska och kategoriska variabler samt vissa saknade värden, främst i rabatt och leveranstid.
