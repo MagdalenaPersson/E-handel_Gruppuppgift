@@ -1,0 +1,193 @@
+---
+title: "E-handel – Analys av försäljning, kundbeteende och rabattstrategier"
+author: Grupp 3
+format: html
+---
+
+## Setup
+
+```{r}
+library(tidyverse)
+library(here)
+library(ggrepel)
+
+source("../scripts/01_data_understanding.R")
+source("../scripts/03_variabler.R")
+source("../scripts/04_analysis.R")
+```
+
+------------------------------------------------------------------------
+
+## Syfte
+
+Syftet med denna analys är att undersöka försäljning, kundbeteende och effekten av rabatter inom ett e-handelsföretag. Målet är att identifiera mönster som kan användas som beslutsunderlag.
+
+------------------------------------------------------------------------
+
+## Frågeställningar
+
+-   Vilka produktkategorier verkar driva högst försäljning?\
+-   Finns det samband mellan rabatt och ordervärde?\
+-   Är det lönsamt att ge rabatt?
+
+------------------------------------------------------------------------
+
+## Metod
+
+Analysen genomfördes i R med hjälp av tidyverse. Datat förbereddes genom att städa textvariabler, hantera saknade värden och skapa nya variabler för ordervärde och rabatt.
+
+Därefter genomfördes en utforskande dataanalys genom gruppindelningar, sammanfattande statistik och visualiseringar för att identifiera mönster och samband i datan.
+
+------------------------------------------------------------------------
+
+## Dataförståelse
+
+Datasetet innehåller cirka 1000 observationer och 16 variabler. Det finns både numeriska och kategoriska variabler samt vissa saknade värden, främst i rabatt och leveranstid.
+
+------------------------------------------------------------------------
+
+## Datastädning och förberedelse
+
+Data har städats genom: - standardisering av textvariabler\
+- borttagning av saknade rabattvärden\
+- skapande av nya variabler för analys
+
+------------------------------------------------------------------------
+
+## Resultat
+
+### Produktkategorier och försäljning
+
+```{r}
+#| echo: false
+p_category_summary <- ggplot(category_summary,aes(x = avg_order, 
+                                                  y = total_sales, 
+                                                  size = antal_order, 
+                                                  color = product_category)) +
+  geom_point(alpha = 0.7) +
+  geom_text_repel(
+    aes(label = product_category),
+    size = 5,
+    box.padding = 0.5,
+    point.padding = 0.5,
+    segment.color = "grey50"
+  ) +
+  labs(
+    title = "Försäljning vs genomsnittligt ordervärde per kategori",
+    x = "Genomsnittligt ordervärde",
+    y = "Total försäljning",
+    size = "Antal ordrar"
+  ) +
+  guides(color = "none")
+
+p_category_summary
+```
+
+Figuren visar att *Electronics* tydligt sticker ut både i total försäljning och genomsnittligt ordervärde, vilket gör den till en central intäktskälla.
+
+------------------------------------------------------------------------
+
+### Rabatt och ordervärde
+
+```{r}
+#| echo: false
+scale_factor <- max(rabattgrupp_summary$antal) / 
+  max(rabattgrupp_summary$medelvarde_order)
+
+p_rabattgrupp_summary <- ggplot(rabattgrupp_summary, aes(x = rabattgrupp)) +
+  geom_col(aes(y = antal, fill = "Antal ordrar")) +
+  geom_line(aes(y = medelvarde_order * scale_factor, 
+                color = "Medel ordervärde", 
+                group = 1), 
+            size = 1.2) +
+  scale_y_continuous(
+    name = "Antal ordrar",
+    sec.axis = sec_axis(~ . / scale_factor, name = "Medel ordervärde")
+  ) +
+  scale_fill_manual(values = c("Antal ordrar" = "lightgrey"), guide = "none") +
+  scale_color_manual(values = c("Medel ordervärde" = "blue")) +
+  labs(
+    title = "Antal ordrar och medel ordervärde per rabattnivå",
+    x = "Rabattgrupp"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top"
+  )
+
+p_rabattgrupp_summary
+```
+
+Resultaten visar att majoriteten av ordrarna sker vid låga rabattnivåer och att rabatter inte ökar ordervärdet.
+
+------------------------------------------------------------------------
+
+### Är det lönsamt att ge rabatt?
+
+```{r}
+#| echo: false
+p_rabatt_impact_summary <- ggplot(rabatt_impact_summary,
+                                 aes(x = medel_quantity,
+                                     y = medel_efter_rabatt,
+                                     size = antal_ordrar,
+                                     fill = rabattgrupp)) +
+  geom_point(
+    shape = 21,
+    color = "grey80",
+    stroke = 0.4,
+    alpha = 0.85
+  ) +
+  scale_size(range = c(4, 10)) +
+  scale_fill_brewer(palette = "YlGnBu") +
+  facet_wrap(~ customer_type, nrow = 1) +
+  labs(
+    title = "Effekten av rabatt på orderstorlek och ordervärde per kundtyp",
+    x = "Genomsnittligt antal produkter per order",
+    y = "Genomsnittligt ordervärde efter rabatt",
+    fill = "Rabattgrupp"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+p_rabatt_impact_summary
+```
+
+#### Fördjupad analys
+
+Effekten av rabatter varierar mellan kundtyper:
+
+-   **Nya kunder:** Höga rabatter kan driva köp av dyrare produkter, men ger ingen tydlig fördel jämfört med ingen rabatt\
+-   **Återkommande kunder:** Högst ordervärde utan rabatt\
+-   **VIP-kunder:** Låg rabatt fungerar bäst
+
+Ett särskilt viktigt resultat är att **höga rabatter ofta ger samma effekt som ingen rabatt alls**.
+
+------------------------------------------------------------------------
+
+## Slutsatser
+
+Analysen visar att produktkategorin Electronics är den främsta drivaren av försäljning och bör ses som en strategiskt viktig kategori för företaget.
+
+Vidare framgår att rabatter inte har den effekt som ofta förväntas. De ökar varken ordervärdet eller antalet köp per kund i någon större utsträckning. Effekten varierar dock mellan kundgrupper, där låga rabatter i vissa fall fungerar bättre än höga.
+
+Ett särskilt viktigt resultat är att höga rabatter ofta ger samma utfall som att inte ge någon rabatt alls. Detta innebär att företaget riskerar att minska sina marginaler utan att skapa något tydligt mervärde.
+
+------------------------------------------------------------------------
+
+## Begränsningar
+
+Analysen bygger på observerade samband i datan och kan därför inte fastställa orsakssamband. Exempelvis går det inte att avgöra om rabatter påverkar kundbeteende, eller om vissa kundgrupper helt enkelt oftare får rabatt.
+
+Vidare saknas information om kostnader och produktmarginaler, vilket innebär att vi inte kan uttala oss om faktisk lönsamhet.
+
+Datasetet saknar också en tydlig tidsdimension, vilket gör det svårt att analysera långsiktiga effekter av rabatter, såsom kundlojalitet och återköpsbeteende.
+
+------------------------------------------------------------------------
+
+## Sammanfattning
+
+Sammanfattningsvis visar analysen att rabatter inte är en effektiv strategi för att öka intäkter i detta dataset. Istället framstår produktkategori och kundsegment som viktigare faktorer för företagets resultat.
+
+Särskilt intressant är att höga rabatter ofta ger **samma effekt** som ingen rabatt alls, vilket tyder på en potentiellt ineffektiv användning av rabatter.
+
+För att fatta mer välgrundade beslut framöver skulle det vara värdefullt att komplettera analysen med data om kostnader samt följa kundbeteende över tid.
