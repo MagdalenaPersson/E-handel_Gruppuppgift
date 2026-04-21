@@ -99,7 +99,7 @@ p_rabattgrupp_summary <- ggplot(rabattgrupp_summary, aes(x = rabattgrupp)) +
   geom_line(aes(y = medelvarde_order * scale_factor, 
                 color = "Medel ordervärde", 
                 group = 1), 
-            size = 1.2) +
+            linewidth = 1.2) +
   scale_y_continuous(
     name = "Antal ordrar",
     sec.axis = sec_axis(~ . / scale_factor, name = "Medel ordervärde")
