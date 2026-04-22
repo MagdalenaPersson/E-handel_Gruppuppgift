@@ -1,3 +1,4 @@
+source("scripts/03_variabler.R")
 # Dataset efter städning: 973 ordrar (27 rader med saknade discount_pct borttagna)
 
 # Analys - frågeställning 1, 2 och 3
