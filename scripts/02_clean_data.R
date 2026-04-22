@@ -1,4 +1,4 @@
-orders <- read_csv(here::here("data/ecommerce_orders.csv"))
+source("scripts/01_data_understanding.R")
 
 
 # city behöver städas - inkonsekvent stora/små bokstäver
